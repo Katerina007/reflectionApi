@@ -1,10 +1,14 @@
 package com.exadel.reflection_api.utils;
 
+import lombok.SneakyThrows;
 import org.aeonbits.owner.Config;
 import org.aeonbits.owner.ConfigFactory;
 import org.aeonbits.owner.Converter;
 import org.aeonbits.owner.loaders.Loader;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Properties;
 
@@ -57,4 +61,22 @@ public class PropertyFactory {
         return null;
     }
 
+    @SneakyThrows
+    public void removeAnnotationFromMethod(Method annotatedMethod, Class<? extends Annotation> annotationType) {
+        boolean annotatedMethodAccessible;
+        boolean annotationsFieldAccessible;
+
+        annotatedMethodAccessible = annotatedMethod.isAccessible();
+        annotatedMethod.setAccessible(true);
+        annotatedMethod.getDeclaredAnnotations();
+
+        Field annotations = annotatedMethod.getClass().getSuperclass().getDeclaredField("declaredAnnotations");
+        annotationsFieldAccessible = annotations.isAccessible();
+        annotations.setAccessible(true);
+
+        ((Map<Class<? extends Annotation>, Annotation>) annotations.get(annotatedMethod)).remove(annotationType);
+
+        annotations.setAccessible(annotationsFieldAccessible);
+        annotatedMethod.setAccessible(annotatedMethodAccessible);
+    }
 }
